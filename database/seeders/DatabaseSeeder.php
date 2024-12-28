@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Centralizing seeds. It calls all the Seeders declared here.
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
