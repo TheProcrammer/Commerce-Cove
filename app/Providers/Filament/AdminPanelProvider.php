@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -18,6 +17,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Enums\RolesEnum;
+use illuminate\Database\Eloquent\Model;
+
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -68,5 +69,12 @@ class AdminPanelProvider extends PanelProvider
             //     Authenticate::class,
             // ])
             ;
+    }
+
+    // Declaring this function to be able to apply all the models declared on the database. As Laravel
+    // has a default protection against unguarded assignment.
+    public function boot()
+    {
+        Model::unguard();
     }
 }

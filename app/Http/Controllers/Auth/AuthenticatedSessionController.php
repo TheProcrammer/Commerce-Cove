@@ -37,8 +37,8 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        
-        // Allowing Admin and Vendor to go to admin panel but users access must go to dashboard
+
+        // Allowing Admin and Vendor to go to admin panel but users access must go to dashboard.
         $route = "/";
         if ($user->hasAnyRole([RolesEnum::Admin, RolesEnum::Vendor])) {
             return Inertia::location('/admin');
