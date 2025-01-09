@@ -13,17 +13,28 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Filament\Forms\Components\Select;
-use App\Enums\Enum\ProductStatusEnum;
+use App\Enums\ProductStatusEnum;
 use Filament\Facades\Filament;
 use App\Enums\RolesEnum;
+use App\Filament\Resources\ProductResource\Pages\EditProduct;
+use Filament\Pages\SubNavigationPosition;
+use Filament\Resources\Pages\Page;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use App\Filament\Resources\ProductResource\Pages\ProductImages;
+use App\Filament\Resources\ProductResource\Pages\ProductVariationType;
+use App\Filament\Resources\ProductResource\Pages\ProductVariations;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
+
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    
+    //make the edit button appear in right side.
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::End;
 
     public static function form(Form $form): Form
     {
@@ -109,6 +120,11 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 //
+                SpatieMediaLibraryImageColumn::make('images')
+                    ->collection('images')
+                    ->limit(1)
+                    ->label('Image')
+                    ->conversion('thumb'),
                 TextColumn::make('title')
                     ->sortable()
                     ->words(10)
@@ -153,7 +169,23 @@ class ProductResource extends Resource
             'index' => Pages\ListProducts::route('/'),
             'create' => Pages\CreateProduct::route('/create'),
             'edit' => Pages\EditProduct::route('/{record}/edit'),
+            'images' => Pages\ProductImages::route('/{record}/images'), //New route from the ProductImages class
+            'variation-types' => Pages\ProductVariationType::route('/{record}/variation-types'),
+            'variations'=> Pages\ProductVariations::route('/{record}/variations'),
         ];
+    }
+
+    //Adding Edit Product page to the navigation
+    //admin > products > edit
+    Public static function getRecordSubNavigation(Page $page): array
+    {
+        return $page->generateNavigationItems([
+            // Appears on the right side of the page as a button.
+                EditProduct::class,
+                ProductImages::class,
+                ProductVariationType::class,
+                ProductVariations::class
+            ]);
     }
 
     //Vendor is the only access can view this section.
@@ -161,5 +193,6 @@ class ProductResource extends Resource
     {
         $user = Filament::auth()->user();
         return $user && $user->hasRole(RolesEnum::Vendor);
+        
     }
 }

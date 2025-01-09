@@ -123,6 +123,21 @@ export default function Login({
                                 >
                                     Log in
                                 </PrimaryButton>
+
+                                {/* Use this if you want to have a button for admin using the both login page of user
+                                and admin. */}
+                                {/* <Link
+                                    href="/admin/login"
+                                    className="link"
+                                    method="get"
+                                    as="button"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        window.location.href = "/admin/login"; // Force full-page reload
+                                    }}
+                                >
+                                    Admin?
+                                </Link> */}
                             </div>
                         </form>
                     </div>

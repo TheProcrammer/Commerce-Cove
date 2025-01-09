@@ -18,17 +18,19 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Enums\RolesEnum;
 use illuminate\Database\Eloquent\Model;
+use Filament\Http\Middleware\Authenticate;
 
 
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
-    {
+    {   
         //In this section you can customize your filament admin panel. Go to the docs for more info.
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('admin')// Default API
+            ->sidebarWidth('14rem') // Adjust the width of the sidebar
             ->login()
             ->colors([
                 'primary' => Color::Amber,
@@ -53,17 +55,18 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                // auth serves as a middleware for the authentication for the declared 
+                // auth serves as a middleware for the authentication for the declared users.
                 //roles which is Admin and Vendor..
                 'auth',
                 // Declaring the format of the roles. And declaring access for admins.
                 sprintf('role:%s|%s', 
                 RolesEnum::Admin->value, 
-                RolesEnum::Vendor->value),
+                        RolesEnum::Vendor->value
+            ),
             ])
 
             // Commented out this middleware as it is the login form for filament and what I wanted to use
-            // is the one that I created above. I wanted to have only one login form.
+            // is the one that is on the breeze. I wanted to have only one login form.
             // admin/login
             // ->authMiddleware([
             //     Authenticate::class,

@@ -38,13 +38,21 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        // Allowing Admin and Vendor to go to admin panel but users access must go to dashboard.
+        // Allowing Admin and Vendor to go to admin panel but users access must go to dashboard.     
         $route = "/";
         if ($user->hasAnyRole([RolesEnum::Admin, RolesEnum::Vendor])) {
             return Inertia::location('/admin');
         } else if ($user->hasRole([RolesEnum::User])) {
             $route = route("dashboard", absolute: false);
         }
+
+        // Makes the API Dynamic not just /admin only.
+        // if ($user->hasAnyRole([RolesEnum::Admin, RolesEnum::Vendor])) {
+        //     $route = $user->hasRole(RolesEnum::Vendor) ? '/vendor' : '/admin';
+        //     return Inertia::location($route);
+        // } else if ($user->hasRole(RolesEnum::User)) {
+        //     $route = route("dashboard", absolute: false);
+        // }        
 
         return redirect()->intended($route);
     }
