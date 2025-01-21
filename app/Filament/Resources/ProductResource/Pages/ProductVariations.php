@@ -31,14 +31,15 @@ class ProductVariations extends EditRecord
      */
     public function form(Form $form): Form
     {
-        $types = $this->record->variationTypes;
-        $fields = [];
+        $types = $this->record->variationTypes; // Retrieve all variation types related to the current record.
+        $fields = []; // Initialize an empty array to hold the dynamically generated fields.
 
-        foreach ($types as $type) {
-            $fields[] = TextInput::make('variation_type_' . ($type->id) . '.id')
-                ->hidden();
-            $fields[] = TextInput::make('variation_type_' . ($type->id) . '.name')
-                ->label($type->name);
+        foreach ($types as $type) { // Loop through each variation type.
+            $fields[] = TextInput::make('variation_type_' . ($type->id) . '.id')  // The field name is dynamically generated as 'variation_type_{type_id}.id'.
+                ->hidden(); // Create a hidden TextInput field to store the ID of the variation type.
+            // Create a visible TextInput field to display or edit the name of the variation type.
+            $fields[] = TextInput::make('variation_type_' . ($type->id) . '.name') // The field name is dynamically generated as 'variation_type_{type_id}.name'.
+                ->label($type->name); // The label for the field is set to the name of the variation type.
         }
 
         return $form
@@ -164,32 +165,33 @@ class ProductVariations extends EditRecord
     //
     protected function mutateFormDataBeforeSave(array $data):array
     {
-        $formattedData = [];
-        foreach ($data['variations'] as $option) {
+        $formattedData = []; // Initialize an empty array to store formatted data.
+        foreach ($data['variations'] as $option) { // Loop through each variation in the input data.
             $variationTypeOptionIds = [];
-            foreach ($this->record->variationTypes as $i => $variationType) {
+            foreach ($this->record->variationTypes as $i => $variationType) {  // Collect the IDs of the variation type options.
                 $variationTypeOptionIds[] = $option['variation_type_' . ($variationType->id)]['id'];
             }
-            
+            // Extract quantity and price for the variation.
             $quantity = $option['quantity'];
             $price = $option['price'];
-
+            // Structure the variation data with required fields.
             $formattedData[] = [
-                'id' => $option['id'],
-                'variation_type_option_ids' => $variationTypeOptionIds, //
-                'quantity' => $quantity,
-                'price'=> $price,
+                'id' => $option['id'], // Variation ID.
+                'variation_type_option_ids' => $variationTypeOptionIds, // Associated option IDs.
+                'quantity' => $quantity, // Quantity value.
+                'price'=> $price, // Price value.
             ];
         }
-        $data['variations'] = $formattedData;
-        return $data;
+        // variations are declared in Product model.
+        $data['variations'] = $formattedData; // Replace the original variations with the formatted data.
+        return $data; // Return the updated data array.
     }
 
     //
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        $variations = $data['variations'];
-        unset($data['variations']);
+        $variations = $data['variations']; // variations are declared in Product model.
+        unset($data['variations']); // Remove variations from main data to handle separately
 
         // Convert variation_type_option_ids to JSON
         $variations = array_map(function ($variation) {

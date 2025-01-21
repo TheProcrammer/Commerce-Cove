@@ -36,6 +36,13 @@ class ProductResource extends Resource
     //make the edit button appear in right side.
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::End;
 
+    // Customizes the query by applying the forVendor scope to retrieve only the records 
+    //created by the authenticated vendor.
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->forVendor(); // Declared in Product model scopeForVendor()
+    }
+
     public static function form(Form $form): Form
     {
         return $form

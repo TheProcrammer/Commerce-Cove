@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 
 class User extends Authenticatable
@@ -48,5 +49,12 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Establishing a one-to-one relationship between the User model and the Vendor model.
+    // For Add to Cart purposes where it defines a vendor's basic information and links it to a specific user.
+    public function vendor():HasOne
+    {
+        return $this->hasOne(Vendor::class, 'user_id');
     }
 }
