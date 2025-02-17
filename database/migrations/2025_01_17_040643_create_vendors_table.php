@@ -11,6 +11,7 @@ return new class extends Migration
      */
 
      // Creating a database table for the vendors which consist the details of the vendors.
+     // Defines a vendor's basic information and links it to a specific user.
     public function up(): void
     {
         Schema::create('vendors', function (Blueprint $table) {

@@ -123,4 +123,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'currency'=> env('APP_CURRENCY', 'PHP'),
+    'stripe_secret_key' => env('STRIPE_SECRET'), // declaring the Stripe secret key from the .env
+    'stripe_webhook_secret' => env('STRIPE_SECRET_WEBHOOK'), // declaring the Stripe webhook secret from the .env
+    'platform_fee_pct' => 10,
 ];

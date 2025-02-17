@@ -1,20 +1,21 @@
 import Carousel from "@/Components/core/Carousel";
 import CurrencyFormatter from "@/Components/core/CurrencyFormatter";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Product, variationTypeOption } from "@/types";
+import { PageProps, Product, variationTypeOption } from "@/types";
 import { arraysAreEqual } from "@/types/helpers";
-import { Head, router, useForm, usePage } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import React, { useEffect, useMemo, useState } from "react";
 
-//
+//Show the details of a Specificv Product along with its variation if there is.
 function Show({
+    appName,
     product, // The product object containing details about the product
     variationOptions, // Each Variation Type Options ex. Color, Size should have a corresponding id.
 }: //ex. Option2 Blue= 2, Option1 Small=1
-{
+PageProps<{
     product: Product;
     variationOptions: number[]; // declaring the type of the variationOptions that is should be a number.
-}) {
+}>) {
     // Create a form object using the `useForm` hook.
     // This form tracks and manages the state of user input for product options, quantity, and price.
     const form = useForm<{
@@ -75,7 +76,7 @@ function Show({
         for (let type of product.variationTypes) {
             // Retrieve the selected option ID for the current variation type from the `variationOptions` object.
             const selectedOptionId: number = variationOptions[type.id];
-            console.log(selectedOptionId, type.options); // Log the selected option ID and all available options for debugging.
+            // console.log(selectedOptionId, type.options); // Log the selected option ID and all available options for debugging.
             chooseOption(
                 type.id, // Pass the current variation type ID (e.g., "size" or "color").
                 // Find the option that matches the selected option ID.
@@ -85,14 +86,16 @@ function Show({
                 false // Pass `false` to indicate that this option was not chosen manually by the user.
             );
         }
-    }, []); // The empty dependency array ensures this effect runs only once when the component mounts.
-    // Function to convert an object of option IDs into a new object with specific key-value pairs.
+    }, [product, variationOptions]); // Add dependencies to avoid unnecessary re-renders.
+
+    // // This function converts the selected options object into a map of variation type IDs to option IDs.
     const getOptionIdsMap = (newOptions: object) => {
-        // Convert the `newOptions` object into a new object with specific key-value pairs.
-        return Object.fromEntries(
-            // Take the entries (key-value pairs) of `newOptions` as an array of [key, value].
-            Object.entries(newOptions).map(([a, b]) => [a, b.id]) // Map each key (`a`) to the `id` property of the corresponding value (`b`).
+        const result = Object.fromEntries(
+            // Converts object entries into an array, maps variation type IDs (keys) to selected option IDs (values),
+            Object.entries(newOptions).map(([a, b]) => [a, b.id])
         );
+        // console.log("Output of getOptionIdsMap:", result); // Add this line
+        return result; // Returns the formatted object.
     };
 
     // updates the selected options in the state and optionally updates the URL to reflect
@@ -107,6 +110,8 @@ function Show({
             // Create a new object by copying the previous selected options and adding the new one
             const newOptions = { ...prevSelectedOptions, [typeId]: option };
             // If the updateRouter flag is true, update the URL parameters with the selected options
+            // console.log("Updated selected options:", newOptions);
+            // console.log("Option IDs map:", getOptionIdsMap(newOptions));
             if (updateRouter) {
                 router.get(
                     url, // The current URL
@@ -129,19 +134,39 @@ function Show({
         form.setData("quantity", parseInt(ev.target.value));
     };
 
-    // Handles adding a product to the shopping cart by sending a POST request to the server.
+    //
+    // const getNextId = () => {
+    //     const { miniCartItems } = usePage<PageProps>().props;
+    //     if (!miniCartItems || miniCartItems.length === 0) return 1;
+    //     return Math.max(...miniCartItems.map((item: CartItem) => item.id)) + 1;
+    // };
+
+    //Handles adding a product to the shopping cart by sending a POST request to the server.
     const addToCart = () => {
-        // Sends a POST request to the "cart.store" route with the product's ID
+        // const nextId = getNextId(); //
+
+        // for debugging
+        // console.log("Selected options before adding to cart:", selectedOptions);
+
+        // Create the payload with selected options and quantity
+        const payload = {
+            options_ids: getOptionIdsMap(selectedOptions), // Use `options_ids` (plural)
+            quantity: 1,
+            // next_id: nextId, //
+        };
+        // for debugging
+        // console.log("Payload being sent:", payload);
+
         form.post(route("cart.store", product.id), {
-            //
-            preserveScroll: true, // Keeps the current scroll position on the page after the request
-            preserveState: true, // Retains the current component state after the request
+            data: payload, // The request payload containing option selections and quantity
+            preserveScroll: true, // Keeps the page scroll position after submission
+            preserveState: true, // Retains form state to prevent UI reset after submission
             onError: (err) => {
-                // Callback function to handle errors
-                console.log(err); // Logs any errors returned by the server
+                console.log(err); // Logs any errors in the console for debugging
             },
         });
     };
+
     // Dynamically renders the available variation types for a product  (e.g., color, size, style)
     // and their corresponding options (e.g., blue, medium, modern design).
     const renderProductVariationTypes = () => {
@@ -240,14 +265,38 @@ function Show({
                 ]
             )
         );
-        console.log(idsMap); // Log the mapping for debugging purposes
+        // console.log(idsMap); // Log the mapping for debugging purposes
         form.setData("options_ids", idsMap); // Update the form data with the newly created mapping of selected options
     }, [selectedOptions]); // Re-run the effect whenever 'selectedOptions' changes
 
     // Renders the main content of the component
     return (
         <AuthenticatedLayout>
-            <Head title={product.title} />
+            <Head>
+                <title>{product.title}</title>
+                <meta
+                    name="title"
+                    content={product.meta_title || product.title}
+                />
+                <meta name="title" content={product.meta_description} />
+                <link
+                    rel="canonical"
+                    href={route("product.show", product.slug)}
+                />
+
+                <meta property="og:title" content={product.title} />
+                <meta
+                    property="og:description"
+                    content={product.meta_description}
+                />
+                <meta property="og:image" content={images?.[0]?.small ?? ""} />
+                <meta
+                    property="og:url"
+                    content={route("product.show", product.slug)}
+                />
+                <meta property="og:type" content="product" />
+                <meta property="og:site_name" content={appName} />
+            </Head>
 
             <div className="container mx-auto p-8">
                 <div className="grid gap-8 grid-cols-1 lg:grid-cols-12">
@@ -257,10 +306,31 @@ function Show({
                     </div>
 
                     {/* Product Details */}
-                    <div className="col-span-1 lg:col-span-5">
-                        <h1 className="text-3xl font-bold mb-4 text-gray-900">
-                            {product.title}
-                        </h1>
+                    <div className="col-span-5">
+                        <h1 className="text-2xl">{product.title}</h1>
+
+                        <p className={"mb-8"}>
+                            by{" "}
+                            <Link
+                                href={route(
+                                    "vendor.profile",
+                                    product.user.store_name
+                                )}
+                                className="hover:underline"
+                            >
+                                {product.user.name}
+                            </Link>
+                            &nbsp; in{" "}
+                            <Link
+                                href={route(
+                                    "product.byDepartment",
+                                    product.department.slug
+                                )}
+                                className="hover:underline"
+                            >
+                                {product.department.name}
+                            </Link>
+                        </p>
 
                         {/* Price Section */}
                         <div className="text-4xl font-semibold text-green-600 mb-4">

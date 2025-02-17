@@ -7,6 +7,8 @@ use App\Models\Product;
 use Filament\Forms;
 use Illuminate\database\Eloquent\Builder;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -117,9 +119,14 @@ class ProductResource extends Resource
                     Select::make('status')
                         ->options(ProductStatusEnum::labels())
                         ->default(ProductStatusEnum::Draft->value)
-                        ->required(),                  
-            ]);
-            
+                        ->required(),
+                    Section::make('SEO')
+                            ->collapsible()
+                            ->schema([
+                                TextInput::make('meta_title'),
+                                TextArea::make('meta_description')  
+                            ])             
+            ]);   
     }
 
     public static function table(Table $table): Table

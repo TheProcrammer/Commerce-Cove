@@ -7,14 +7,23 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use Inertia\Inertia;
 use App\Http\Resources\ProductResource;
+use App\Models\Department;
+use App\Http\Resources\DepartmentResource;
 
 class ProductController extends Controller
 {
     // This function place at home so whenever you go to home page products will be rendered as well.
-    public function home()
+    public function home(Request $request)
     {
+        $keyword = $request->query('keyword');
         $products = Product::query() //Render products data
             ->forWebsite() // Fetches products that are marked as 'Published'.
+            ->when($keyword, function ($query, $keyword){
+                $query->where(function($query) use ($keyword){
+                    $query->where('title', 'LIKE', "%{$keyword}%")
+                        ->orWhere('description', 'LIKE', "%{$keyword}%");
+                });
+            })
             ->paginate(12);
 
         return Inertia::render('Home',[
@@ -33,5 +42,32 @@ class ProductController extends Controller
             'variationOptions' => request('options', []), // Get selected variation options from the request or default to an empty array.
             // 'options' retrieves the options parameter from the incoming HTTP request.
         ]);
+    }
+
+    // Retrieves and displays products for a specific department.
+    public function byDepartment(Request $request, Department $department)
+    {
+        // Abort with 404 if the department is not active
+        abort_unless($department->active, 404);
+        // Get the 'keyword' query parameter from the request
+        $keyword = $request->query('keyword');
+
+        // Query products belonging to the given department
+        $products = Product::query()
+            ->forWebsite() // Apply a predefined scope for website-specific products
+            ->where('department_id', $department->id) // Filter products by department
+            ->when($keyword, function ($query, $keyword){ // If a keyword is provided, filter products
+                $query->where(function($query) use ($keyword){
+                    $query->where('title', 'LIKE', "%{$keyword}%")
+                        ->orWhere('description', 'LIKE', "%{$keyword}%"); // Or by description
+                });
+            })
+            ->paginate(); // Paginate the results
+
+            // Render the Department/Index page with department and product data
+            return Inertia::render('Department/Index', [
+                'department' => new DepartmentResource($department),
+                'products' => ProductListResource::collection($products),
+            ]);
     }
 }

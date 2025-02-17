@@ -20,6 +20,12 @@ class ProductResource extends JsonResource
      // Fetches data from the database then pass it on to the frontend.
     public function toArray(Request $request): array
     {
+        $options = $request->input('options') ?: [];
+        if ($options) {
+            $images = $this->getImageForOptions($options);
+        } else {
+            $images = $this->getImages();
+        }
         return [
             "id"=> $this->id,
             "title"=> $this->title,
@@ -28,7 +34,7 @@ class ProductResource extends JsonResource
             "price"=> $this->price,
             "quantity"=> $this->quantity,
             "image"=> $this->getFirstMediaUrl('images'), // Include the URL of the first image associated with the product, stored in the 'images' collection
-            "images" => $this->getMedia("images")->map(function($image){ // Include an array of all images in the 'images' collection.
+            "images" => $this->getMedia('images')->map(function($image){ // Include an array of all images in the 'images' collection.
                 return [
                     "id"=> $image->id,
                     'thumb' => $image->getUrl('thumb'),
@@ -38,11 +44,13 @@ class ProductResource extends JsonResource
             }),
             "user"=>[
                 "id"=> $this->user->id,
-                "name"=> $this->user->name
+                "name"=> $this->user->name,
+                "store_name" => $this->user->vendor->store_name
             ],
             "department" => [
                 "id" => $this->department->id,
-                "name" => $this->department->name
+                "name" => $this->department->name,
+                "slug" => $this->department->slug
             ],
             'variationTypes' => $this->variationTypes->map(function ($variationType) {
                 return [

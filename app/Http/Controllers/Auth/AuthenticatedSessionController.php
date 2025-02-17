@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Services\CartService;
 
 
 
@@ -29,23 +30,31 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
+     * This function authenticates the user, regenerates the session for security, 
+     * checks the user's role, and redirects them accordingly.
+     * If the user has items in their cart (stored in cookies), it moves them to the database.
      */
-    public function store(LoginRequest $request): \Symfony\Component\HttpFoundation\Response
+    public function store(LoginRequest $request, CartService $cartService): \Symfony\Component\HttpFoundation\Response
     {
-        $request->authenticate();
+        $request->authenticate(); // Authenticate the user
 
-        $request->session()->regenerate();
+        $request->session()->regenerate();  // Regenerate the session to prevent session fixation attacks
 
-        $user = Auth::user();
+        $user = Auth::user(); // Get the authenticated user
 
         // Allowing Admin and Vendor to go to admin panel but users access must go to dashboard.     
-        $route = "/";
+        $route = "/"; // Default route after login
+        // Check if the user is an Admin or Vendor
         if ($user->hasAnyRole([RolesEnum::Admin, RolesEnum::Vendor])) {
-            return Inertia::location('/admin');
+            $cartService->moveCartItemsToDatabase($user->id); // Move cart items from cookies to the database
+            return Inertia::location('/admin'); // Redirect to the admin panel
+        // If the user is a regular User, set their dashboard route
         } else if ($user->hasRole([RolesEnum::User])) {
             $route = route("dashboard", absolute: false);
         }
-
+        // Move cart items from cookies to the database for regular users as well
+        $cartService->moveCartItemsToDatabase($user->id);
+        
         // Makes the API Dynamic not just /admin only.
         // if ($user->hasAnyRole([RolesEnum::Admin, RolesEnum::Vendor])) {
         //     $route = $user->hasRole(RolesEnum::Vendor) ? '/vendor' : '/admin';
@@ -54,6 +63,7 @@ class AuthenticatedSessionController extends Controller
         //     $route = route("dashboard", absolute: false);
         // }        
 
+        // Redirect to the intended page or fallback to the dashboard
         return redirect()->intended($route);
     }
 

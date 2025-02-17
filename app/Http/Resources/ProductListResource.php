@@ -21,16 +21,21 @@ class ProductListResource extends JsonResource
             "id"=> $this->id,
             "title"=> $this->title,
             "slug"=> $this->slug,
-            "price"=> $this->price,
+            "description"=> $this->description,
+            "meta_title" => $this->meta_title,
+            "meta_description" => $this->meta_description,
+            "price"=> $this->getPriceForFirstOptions(),
             "quantity"=> $this->quantity,
-            "image"=> $this->image,
+            "image"=> $this->getFirstImageUrl(),
             "user"=> [
                 "id"=> $this->user->id,
-                "name"=> $this->user->name
+                "name"=> $this->user->name,
+                'store_name' => $this->user->vendor->store_name
             ],
             "department" => [
                 "id" => $this->department->id,
-                "name" => $this->department->name
+                "name" => $this->department->name,
+                "slug" => $this->department->slug
             ]
         ];
     }

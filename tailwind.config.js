@@ -1,3 +1,4 @@
+import daisyui from "daisyui";
 import defaultTheme from "tailwindcss/defaultTheme";
 
 // /** @type {import('tailwindcss').Config} */
@@ -16,6 +17,17 @@ export default {
             },
         },
     },
+
+    // daisyui: {
+    //     themes: [
+    //         {
+    //             light: {
+    //                 ...require("daisyui/src/theming/themes")["Light"],
+    //                 primary: "#6936F5",
+    //             },
+    //         },
+    //     ],
+    // },
 
     plugins: [require("daisyui")],
 };

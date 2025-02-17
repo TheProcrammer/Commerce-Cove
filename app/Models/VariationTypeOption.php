@@ -14,7 +14,7 @@ class VariationTypeOption extends Model implements HasMedia
     use InteractsWithMedia, RegisterCustomMediaConversions;
 
     public $timestamps = false; //Disables updated_at and created_at timestamps.
-
+    
     //Refactored version
     public function registerMediaConversions(?Media $media = null): void 
         { 

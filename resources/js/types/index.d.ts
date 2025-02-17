@@ -9,6 +9,14 @@ export interface User {
     name: string;
     email: string;
     email_verified_at?: string;
+    stripe_account_active: boolean;
+    vendor: {
+        status: string;
+        status_label: string;
+        store_name: string;
+        store_address: string;
+        cover_image: string;
+    };
 }
 
 // Define the Image type, which represents the structure of an image associated with a product or option
@@ -46,13 +54,17 @@ export type Product = {
     images: Image[]; // Array of additional product images
     short_description: string; // Brief summary of the product
     description: string; // Detailed description of the product
+    meta_title: string; // Meta title for the product page
+    meta_description: string; // Meta description for the product page
     user: {
         id: number; // ID of the user who created/owns the product
         name: string; // Name of the user
+        store_name: string; // Name of the user's store
     };
     department: {
         id: number; // ID of the department/category the product belongs to
         name: string; // Name of the department/category
+        slug: string;
     };
     variationTypes: VariationType[]; // List of possible variation types (e.g., size, color)
     variations: Array<{
@@ -61,6 +73,28 @@ export type Product = {
         quantity: number; // Stock quantity of this specific variation
         price: number; // Price of this specific variation
     }>;
+};
+
+// Represents a cart item in an e-commerce system. It defines the structure of a cart
+// item object to ensure type safety
+export type CartItem = {
+    id: number;
+    product_id: number;
+    title: string; // The name of the product.
+    slug: string; // A URL-friendly identifier for the product
+    quantity: number;
+    price: number;
+    image: string;
+    option_ids: Record<string, number>; // A key-value pair object where: Example { "color": 2, "size": 5 }.
+    options: VariationTypeOption[]; // Extract variation type options
+};
+
+// Represents a group of cart items associated with a specific user.
+export type GroupedCartItems = {
+    user: User; // User who owns the cart. Contains user details.
+    items: CartItem[]; // Array of cart items belonging to this user.
+    totalPrice: number;
+    totalQuantity: number;
 };
 
 // Define a generic type `PaginationProps` that accepts a type parameter `T`.
@@ -72,8 +106,72 @@ export type PaginationProps<T> = {
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
 > = T & {
+    appName: string;
+    csrf_token: string;
+    error: string;
+    success: {
+        message: string;
+        time: number;
+    };
     auth: {
         user: User; // The currently authenticated user, represented by a `User` type.
     };
     ziggy: Config & { location: string }; // Ex. "location": "Home Page"
+    totalQuantity: number;
+    totalPrice: number;
+    miniCartItems: CartItem[];
+    departments: Department[];
+    keyword: string;
+};
+
+// Represents an individual item within an order.
+export type OrderItem = {
+    id: number; // Unique identifier for the order item.
+    quantity: number;
+    price: number;
+    variation_type_option_ids: number[]; // Array of variation option IDs (e.g., size, color) selected for this item.
+    product: {
+        id: number;
+        title: string;
+        slug: string;
+        description: string;
+        image: string;
+    };
+};
+
+// Represents an order in an e-commerce system.
+export type Order = {
+    id: number;
+    total_price: number;
+    status: string; // Current status of the order (e.g., "Pending," "Paid," "Shipped").
+    created_at: string; // Timestamp when the order was placed.
+    vendorUser: {
+        // Vendor details associated with the order
+        id: number;
+        name: string;
+        email: string;
+        store_name: string;
+        store_address: string;
+    };
+    orderItems: OrderItem[]; // Array of items included in this order
+};
+
+export type Vendor = {
+    id: number;
+    store_name: string;
+    store_address: string;
+};
+
+export type Category = {
+    id: number;
+    name: string;
+};
+
+export type Department = {
+    id: number;
+    name: string;
+    slug: string;
+    meta_title: string;
+    meta_description: string;
+    categories: Category[];
 };
