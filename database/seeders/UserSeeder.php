@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
             'email' => 'user@example.com',
             'password'=> bcrypt('try'),
         ])->assignRole(RolesEnum::User);
-        //
+        
         $user = User::factory()->create([
             'name' => 'Vendor',
             'email' => 'vendor@example.com',

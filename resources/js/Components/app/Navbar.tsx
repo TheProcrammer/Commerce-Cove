@@ -116,7 +116,7 @@ function Navbar() {
                 </div>
             </div>
 
-            <div className="navbar-center-100 border-t min-h-4">
+            {/* <div className="navbar-center-100 border-t min-h-4">
                 <div className="navbar-center hidden lg:flex">
                     <ul className="menu menu-horizontal px-1 z-20 py-0">
                         {departments.map((department) => (
@@ -133,7 +133,7 @@ function Navbar() {
                         ))}
                     </ul>
                 </div>
-            </div>
+            </div> */}
         </>
     );
 }

@@ -1,3 +1,4 @@
+import DepartmentList from "@/Components/app/DepartmentList";
 import ProductItem from "@/Components/app/ProductItem";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Department, PageProps, PaginationProps, Product } from "@/types";
@@ -14,6 +15,7 @@ function Index({
 }>) {
     return (
         <AuthenticatedLayout>
+            <DepartmentList />
             <Head>
                 <title>{department.name}</title>
                 <meta name="title" content={department.meta_title} />

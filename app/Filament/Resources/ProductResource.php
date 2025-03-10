@@ -34,6 +34,10 @@ class ProductResource extends Resource
     protected static ?string $model = Product::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    // protected static ?string $navigationLabel = 'Products'; // Changes the navigation label
+
+    // protected static ?string $navigationGroup = 'Products'; // To group the resource under a navigation group
     
     //make the edit button appear in right side.
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::End;

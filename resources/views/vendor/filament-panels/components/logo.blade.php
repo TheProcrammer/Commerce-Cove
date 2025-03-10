@@ -1,0 +1,1 @@
+<img src={{asset('images/commerce-logo.png')}} alt="logo" style="width: 100px; height: 50px;"/>

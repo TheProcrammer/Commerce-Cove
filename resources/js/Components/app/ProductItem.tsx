@@ -40,14 +40,14 @@ function ProductItem({ product }: { product: Product }): any {
             <div className="card-body">
                 <h2 className="card-title">{product.title}</h2>
                 <p>
-                    by{" "}
+                    from{" "}
                     <Link
                         href={route("vendor.profile", product.user.store_name)}
                         className="hover:underline"
                     >
-                        {product.user.name}
+                        {product.user.store_name}
                     </Link>
-                    &nbsp; in{" "}
+                    &nbsp;in{" "}
                     <Link
                         href={route(
                             "product.byDepartment",

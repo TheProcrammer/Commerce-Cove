@@ -62,7 +62,6 @@ class AuthenticatedSessionController extends Controller
         // } else if ($user->hasRole(RolesEnum::User)) {
         //     $route = route("dashboard", absolute: false);
         // }        
-
         // Redirect to the intended page or fallback to the dashboard
         return redirect()->intended($route);
     }
@@ -72,11 +71,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        Auth::logout();
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
+
 
         return redirect('/');
     }

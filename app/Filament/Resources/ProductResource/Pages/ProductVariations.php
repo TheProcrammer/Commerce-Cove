@@ -175,8 +175,26 @@ class ProductVariations extends EditRecord
             $quantity = $option['quantity'];
             $price = $option['price'];
             // Structure the variation data with required fields.
+
+            // dd($option); // for debugging
+            
+            // Find the variation ID dynamically
+        $variationId = null;
+        // Check if there's a direct id field first
+        if (isset($option['id'])) {
+            $variationId = $option['id'];
+        } else {
+            // Otherwise, look for the first variation_type key and use its id
+            foreach ($option as $key => $value) {
+                if (strpos($key, 'variation_type_') === 0 && isset($value['id'])) {
+                    $variationId = $value['id'];
+                    break;
+                }
+            }
+        }
+
             $formattedData[] = [
-                'id' => $option['id'], // Variation ID.
+                'id' => $variationId, // Variation ID.
                 'variation_type_option_ids' => $variationTypeOptionIds, // Associated option IDs.
                 'quantity' => $quantity, // Quantity value.
                 'price'=> $price, // Price value.
@@ -187,7 +205,7 @@ class ProductVariations extends EditRecord
         return $data; // Return the updated data array.
     }
 
-    //
+    
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         $variations = $data['variations']; // variations are declared in Product model.

@@ -18,7 +18,10 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Enums\RolesEnum;
 use illuminate\Database\Eloquent\Model;
-use Filament\Http\Middleware\Authenticate;
+use App\Filament\Pages\Auth\Login;
+use App\Http\Middleware\Authenticate;
+
+
 
 
 class AdminPanelProvider extends PanelProvider
@@ -32,9 +35,13 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')// Default API
             ->sidebarWidth('14rem') // Adjust the width of the sidebar
             ->login()
-            ->colors([
+            // icon colors and text color can be also modifiable.
+            ->colors([ // Color of the sidebar, can also use hex code 'primary' => "#F59E0B", RGB will also work with the same logic.
                 'primary' => Color::Amber,
             ])
+            // ->font("Poppins") // You can change font here.
+            // ->favicon("") // You can change favicon here.
+            // ->darkMode(false) // Disable darkmode.
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -42,8 +49,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                Widgets\AccountWidget::class, // Show the Welcome message for the user.
+                // Widgets\FilamentInfoWidget::class, // Show the Filament logo.
+                // \App\Filament\Widgets\Vendor\StatsWidget::class,
+                // \App\Filament\Widgets\Vendor\RevenueChart::class,
+                // \App\Filament\Widgets\Vendor\OrderStatus::class
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -63,7 +73,7 @@ class AdminPanelProvider extends PanelProvider
                 RolesEnum::Admin->value, 
                         RolesEnum::Vendor->value
             ),
-            ])
+        ])
 
             // Commented out this middleware as it is the login form for filament and what I wanted to use
             // is the one that is on the breeze. I wanted to have only one login form.
@@ -71,6 +81,7 @@ class AdminPanelProvider extends PanelProvider
             // ->authMiddleware([
             //     Authenticate::class,
             // ])
+                
             ;
     }
 

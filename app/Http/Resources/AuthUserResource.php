@@ -28,7 +28,8 @@ class AuthUserResource extends JsonResource
             'stripe_account_active' => (bool)$this->stripe_account_active,
             'vendor'=>!$this->vendor ? null : [
                 'status' => $this->vendor->status,
-                'status_label' => VendorStatusEnum::from($this->vendor->status)->label(),
+                'status_label' => VendorStatusEnum::from($this->vendor->status), 
+                    // ->label(), // Add this if the vendor is login to their account they cannot visit the user page
                 'store_name' => $this->vendor->store_name,
                 'store_address' => $this->vendor->store_address,
                 'cover_image' => $this->vendor->cover_image,

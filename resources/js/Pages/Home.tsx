@@ -1,3 +1,4 @@
+import DepartmentList from "@/Components/app/DepartmentList";
 import ProductItem from "@/Components/app/ProductItem";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { PageProps, PaginationProps, Product } from "@/types";
@@ -9,6 +10,7 @@ export default function Home({
 PageProps<{ products: PaginationProps<Product> }>) {
     return (
         <AuthenticatedLayout>
+            <DepartmentList />
             <Head title="Welcome" />
             <div className="hero bg-base-200 min-h-screen">
                 <div className="hero-content text-center">
